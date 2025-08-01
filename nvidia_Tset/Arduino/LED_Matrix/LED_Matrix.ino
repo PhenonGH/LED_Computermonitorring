@@ -2,11 +2,11 @@
 #include <Adafruit_NeoPixel.h>
 #define PIN        29        // GPIO29 auf dem RP2040 Zero
 #define NUM_LEDS   64        // 8x8 Matrix
-#define BRIGHTNESS 4        // 25 % von 255 ≈ 64
+#define BRIGHTNESS 4        // 1.6 % von 255 ≈ 4
 Adafruit_NeoPixel strip(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 #define aktiv 0
-//#####  LED config
-//int64_t LED = 0xAA55AA55AA55AA55;
+uint64_t LED = 0;
+
 
 struct LED_LIST {   // Structure declaration
   byte led1;           // Member (int variable)
@@ -21,17 +21,10 @@ struct LED_LIST {   // Structure declaration
 
 
 
-int64_t LED = 0xFFFFFFFFFFFFFFFF;
-
-
-
-
-
 int64_t  all_led_prozent2(LED_LIST data)
 {
-   int64_t LED_ll_led_prozent = 0;
-
-   LED_ll_led_prozent = int64_t(prozent(data.led1))
+   int64_t all_led_in_one_value = 0;
+   all_led_in_one_value = int64_t(prozent(data.led1))
     | (int64_t(prozent(data.led2)) << 8)
     | (int64_t(prozent(data.led3)) << 16)
     | (int64_t(prozent(data.led4)) << 24)
@@ -40,14 +33,14 @@ int64_t  all_led_prozent2(LED_LIST data)
     | (int64_t(prozent(0)) << 48)
     | (int64_t(prozent(0)) << 56);
 
-  return LED_ll_led_prozent;
+  return all_led_in_one_value;
 }
 
 int64_t  all_led_prozent_in_hex2(LED_LIST data)
 {
-   int64_t LED_ll_led_prozent = 0;
+   int64_t all_led_in_one_value = 0;
 
-   LED_ll_led_prozent = int64_t(prozent_in_hex(data.led1))
+   all_led_in_one_value = int64_t(prozent_in_hex(data.led1))
     | (int64_t(prozent_in_hex(data.led2)) << 8)
     | (int64_t(prozent_in_hex(data.led3)) << 16)
     | (int64_t(prozent_in_hex(data.led4)) << 24)
@@ -56,7 +49,7 @@ int64_t  all_led_prozent_in_hex2(LED_LIST data)
     | (int64_t(prozent_in_hex(0)) << 48)
     | (int64_t(prozent_in_hex(0)) << 56);
 
-  return LED_ll_led_prozent;
+  return all_led_in_one_value;
 }
 
 byte prozent(int value)
@@ -86,11 +79,11 @@ byte prozent(int value)
 byte prozent_in_hex(int value)
 {
   if (value < 0) value = 0;
-  if (value > 255) value = 255;  // wir wollen 8-Bit Anzeige
+  if (value > 255) value = 255;  // 8-Bit 255 is Max
   return byte(value);
 }
 
-
+// 8 led Lines 8 colors
 int64_t change_color(int LED_Num)
 { 
  const int group = LED_Num / 8;
@@ -121,6 +114,8 @@ int64_t change_color(int LED_Num)
   }
 return 0;
 }
+
+//set colors and display led matrix
 void display_LED(int64_t display_LEDs)
 {
   for (int i = 0; i < NUM_LEDS; i++) {
@@ -142,25 +137,6 @@ void display_LED(int64_t display_LEDs)
 }
 
 
-
-void setup() {
-  strip.begin();
-  strip.setBrightness(BRIGHTNESS); // 0-255, hier 25%
-  strip.show(); // Alle LEDs aus
-  Serial.begin(9600);
-}
-void loop() {
-  LED_LIST data;
-
-  int64_t wert = is_String_nummer(input());
-  data = umrechunung(wert);
-
-  //LED =all_led_prozent2(data);
-  LED= all_led_prozent_in_hex2(data);
-
-  display_LED(LED);
- 
-}
 
 int64_t is_String_nummer(String eingabe)
 {
@@ -190,7 +166,7 @@ String input(void)
 
 }
 
-struct LED_LIST umrechunung(uint wert)
+struct LED_LIST convert(uint wert)
 {
     //wert =0xFFFFFFFF;
   LED_LIST data;
@@ -201,4 +177,22 @@ struct LED_LIST umrechunung(uint wert)
   return data;
 }
 
+void setup() {
+  strip.begin();
+  strip.setBrightness(BRIGHTNESS); // 0-255, hier 25%
+  strip.show(); // Alle LEDs aus
+  Serial.begin(9600);
+}
+void loop() {
+  LED_LIST data;
+
+  int64_t wert = is_String_nummer(input());
+  data = convert(wert);
+
+  //LED =all_led_prozent2(data);
+  LED= all_led_prozent_in_hex2(data);
+
+  display_LED(LED);
+ 
+}
 
