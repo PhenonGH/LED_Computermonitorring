@@ -28,10 +28,10 @@ int64_t  all_led_prozent2(LED_LIST data)
     | (int64_t(prozent(data.led2)) << 8)
     | (int64_t(prozent(data.led3)) << 16)
     | (int64_t(prozent(data.led4)) << 24)
-    | (int64_t(prozent(0)) << 32)
-    | (int64_t(prozent(0)) << 40)
-    | (int64_t(prozent(0)) << 48)
-    | (int64_t(prozent(0)) << 56);
+    | (int64_t(prozent(data.led5)) << 32)
+    | (int64_t(prozent(data.led6)) << 40)
+    | (int64_t(prozent(data.led7)) << 48)
+    | (int64_t(prozent(data.led8)) << 56);
 
   return all_led_in_one_value;
 }
@@ -44,10 +44,10 @@ int64_t  all_led_prozent_in_hex2(LED_LIST data)
     | (int64_t(prozent_in_hex(data.led2)) << 8)
     | (int64_t(prozent_in_hex(data.led3)) << 16)
     | (int64_t(prozent_in_hex(data.led4)) << 24)
-    | (int64_t(prozent_in_hex(0)) << 32)
-    | (int64_t(prozent_in_hex(0)) << 40)
-    | (int64_t(prozent_in_hex(0)) << 48)
-    | (int64_t(prozent_in_hex(0)) << 56);
+    | (int64_t(prozent_in_hex(data.led5)) << 32)
+    | (int64_t(prozent_in_hex(data.led6)) << 40)
+    | (int64_t(prozent_in_hex(data.led7)) << 48)
+    | (int64_t(prozent_in_hex(data.led8)) << 56);
 
   return all_led_in_one_value;
 }
@@ -138,10 +138,10 @@ void display_LED(int64_t display_LEDs)
 
 
 
-int64_t is_String_nummer(String eingabe)
+uint64_t is_String_nummer(String eingabe)
 {
   eingabe.trim();
-  int64_t wert = strtoll(eingabe.c_str(), nullptr, 10);  // 10 = Dezimalsystem
+  uint64_t wert = strtoll(eingabe.c_str(), nullptr, 10);  // 10 = Dezimalsystem
   return wert;
 }
 
@@ -166,7 +166,7 @@ String input(void)
 
 }
 
-struct LED_LIST convert(uint wert)
+struct LED_LIST convert(uint64_t wert)
 {
     //wert =0xFFFFFFFF;
   LED_LIST data;
@@ -174,6 +174,10 @@ struct LED_LIST convert(uint wert)
   data.led2 = (wert>>8) & 0x000000FF;
   data.led3 = (wert>>16) & 0x000000FF;
   data.led4 = (wert>>24) & 0x000000FF;
+  data.led5 = (wert>>32) & 0x000000FF;
+  data.led6 = (wert>>40) & 0x000000FF;
+  data.led7 = (wert>>48) & 0x000000FF;
+  data.led8 = (wert>>56) & 0x000000FF;
   return data;
 }
 
