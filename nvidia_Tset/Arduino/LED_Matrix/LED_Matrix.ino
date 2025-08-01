@@ -5,6 +5,7 @@
 #define BRIGHTNESS 4        // 1.6 % von 255 ≈ 4
 Adafruit_NeoPixel strip(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 #define aktiv 0
+#define BUTTON_PIN 26
 uint64_t LED = 0;
 
 
@@ -186,17 +187,49 @@ void setup() {
   strip.setBrightness(BRIGHTNESS); // 0-255, hier 25%
   strip.show(); // Alle LEDs aus
   Serial.begin(9600);
+  pinMode(BUTTON_PIN, INPUT);
 }
 void loop() {
   LED_LIST data;
 
   int64_t wert = is_String_nummer(input());
+  wert = 0x645036FF;
   data = convert(wert);
 
-  //LED =all_led_prozent2(data);
-  LED= all_led_prozent_in_hex2(data);
+
+  if(change_mode_by_button())
+  {
+    LED= all_led_prozent_in_hex2(data);
+  }
+  else
+  {
+    LED =all_led_prozent2(data);
+  }
 
   display_LED(LED);
  
+}
+
+bool change_mode_by_button()
+{
+  int buttonState = 0;
+  static bool mode = true; 
+  buttonState = analogRead(BUTTON_PIN);
+
+    if (buttonState > 512) 
+    {
+      delay(20);
+       if (buttonState > 512) 
+      {
+        mode ^= true;
+
+      }  
+
+     } 
+     Serial.println("mode: ");
+    
+     return mode;
+
+
 }
 
