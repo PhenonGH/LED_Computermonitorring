@@ -1,0 +1,273 @@
+
+#include <Adafruit_NeoPixel.h>
+#define PIN        29        // GPIO29 auf dem RP2040 Zero
+#define NUM_LEDS   64        // 8x8 Matrix
+#define BRIGHTNESS 4        // 25 % von 255 ≈ 64
+Adafruit_NeoPixel strip(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
+#define aktiv 0
+//#####  LED config
+//int64_t LED = 0xAA55AA55AA55AA55;
+
+struct LED_LIST {   // Structure declaration
+  byte led1;           // Member (int variable)
+  byte led2;       // Member (char variable)
+  byte led3;           // Member (int variable)
+  byte led4;       // Member (char variable)
+  byte led5;       // Member (char variable)
+  byte led6;       // Member (char variable)
+  byte led7;       // Member (char variable)
+  byte led8;       // Member (char variable)
+}; // End the structure with a semicolon
+
+
+
+int64_t LED = 0xFFFFFFFFFFFFFFFF;
+
+
+int64_t all_led_prozent(byte LED1, byte LED2, byte LED3 , byte LED4, byte LED5, byte LED6, byte LED7, byte LED8)
+{
+  int64_t LED_ll_led_prozent=0; 
+
+
+   LED1 = prozent(LED1);
+   LED2 = prozent(LED2);
+   LED3 = prozent(LED3);
+   LED4 = prozent(LED4);
+   LED5 = prozent(LED5);
+   LED6 = prozent(LED6);
+   LED7 = prozent(LED7);
+   LED8 = prozent(LED8);
+  
+ LED_ll_led_prozent = int64_t(LED1)
+    | (int64_t(LED2) << 8)
+    | (int64_t(LED3) << 16)
+    | (int64_t(LED4) << 24)
+    | (int64_t(LED5) << 32)
+    | (int64_t(LED6) << 40)
+    | (int64_t(LED7) << 48)
+    | (int64_t(LED8) << 56);
+
+
+  return LED_ll_led_prozent; 
+}
+
+
+int64_t  all_led_prozent2(LED_LIST data)
+{
+   int64_t LED_ll_led_prozent = 0;
+
+   LED_ll_led_prozent = int64_t(prozent(data.led1))
+    | (int64_t(prozent(data.led2)) << 8)
+    | (int64_t(prozent(data.led3)) << 16)
+    | (int64_t(prozent(data.led4)) << 24)
+    | (int64_t(prozent(0)) << 32)
+    | (int64_t(prozent(0)) << 40)
+    | (int64_t(prozent(0)) << 48)
+    | (int64_t(prozent(0)) << 56);
+
+  return LED_ll_led_prozent;
+}
+
+int64_t all_led_prozent_in_hex(byte LED1, byte LED2, byte LED3 , byte LED4, byte LED5, byte LED6, byte LED7, byte LED8)
+{
+  int64_t LED_ll_led_prozent = 0;
+
+  // Werte holen und direkt als Bitmuster verwenden
+  LED1 = prozent_in_hex(LED1); // z. B. 13 → 00001101
+  LED2 = prozent_in_hex(LED2);
+  LED3 = prozent_in_hex(LED3);
+  LED4 = prozent_in_hex(LED4);
+  LED5 = prozent_in_hex(LED5);
+  LED6 = prozent_in_hex(LED6);
+  LED7 = prozent_in_hex(LED7);
+  LED8 = prozent_in_hex(LED8);
+
+  // 8 Bytes in ein 64-Bit-Wort setzen
+  LED_ll_led_prozent = int64_t(LED1)
+    | (int64_t(LED2) << 8)
+    | (int64_t(LED3) << 16)
+    | (int64_t(LED4) << 24)
+    | (int64_t(LED5) << 32)
+    | (int64_t(LED6) << 40)
+    | (int64_t(LED7) << 48)
+    | (int64_t(LED8) << 56);
+
+  return LED_ll_led_prozent;
+}
+
+int64_t  all_led_prozent_in_hex2(LED_LIST data)
+{
+   int64_t LED_ll_led_prozent = 0;
+
+   LED_ll_led_prozent = int64_t(prozent_in_hex(data.led1))
+    | (int64_t(prozent_in_hex(data.led2)) << 8)
+    | (int64_t(prozent_in_hex(data.led3)) << 16)
+    | (int64_t(prozent_in_hex(data.led4)) << 24)
+    | (int64_t(prozent_in_hex(0)) << 32)
+    | (int64_t(prozent_in_hex(0)) << 40)
+    | (int64_t(prozent_in_hex(0)) << 48)
+    | (int64_t(prozent_in_hex(0)) << 56);
+
+  return LED_ll_led_prozent;
+}
+
+byte prozent(int value)
+{
+  float temp;
+  byte num_of_led_prozent =0;
+  if (value > 100)
+  {
+    value =100;
+  }
+
+  
+  temp = float(value)/12.5; 
+  num_of_led_prozent= byte(temp);
+  if(!(num_of_led_prozent ==0))
+  {
+     num_of_led_prozent=(1<<(num_of_led_prozent)) -1;
+  }
+ 
+  if(num_of_led_prozent<0)
+  {
+    num_of_led_prozent = 0;
+  }
+  
+  return num_of_led_prozent;
+ 
+}
+
+byte prozent_in_hex(int value)
+{
+  if (value < 0) value = 0;
+  if (value > 255) value = 255;  // wir wollen 8-Bit Anzeige
+  return byte(value);
+}
+
+
+
+int64_t change_color(int LED_Num)
+{ //Rot
+ const int group = LED_Num / 8;
+
+  switch (group)
+  {
+   
+    case 0:
+      return 0xFF0000; // Rot
+    case 1:
+     // return 0x00FF00; // Grün
+      return 0xFF0000; // Rot
+    case 2:
+      //return 0x0000FF; // Blau
+      return 0x00FF00; // Grün
+    case 3:
+      //return 0xFFFF00; // Gelb
+      return 0x00FF00; // Grün
+    case 4:
+      return 0xFF00FF; // Magenta
+    case 5:
+      return 0xFF8000; // Orange
+    case 6:
+       return 0x404040; // Braun
+    case 7:
+      return 0xFFFFFF; // Weiß
+     default:
+      return 0;
+  }
+
+
+return 0;
+
+}
+void display_LED(int64_t display_LEDs)
+{
+  for (int i = 0; i < NUM_LEDS; i++) {
+    
+    if((display_LEDs>>i) & 1)
+    {
+      int64_t colors = change_color(i);
+      strip.setPixelColor(i, strip.Color((colors >> 16) & 0xFF, (colors >> 8) & 0xFF, colors & 0xFF));
+    }
+    else {
+      strip.setPixelColor(i, strip.Color(0,0,0));
+    }
+
+    strip.show();
+    delay(1);
+
+  }
+  delay(1000);
+  //strip.clear();
+}
+
+//oben LED_martrix ansteuerung
+
+
+void setup() {
+  strip.begin();
+  strip.setBrightness(BRIGHTNESS); // 0-255, hier 25%
+  strip.show(); // Alle LEDs aus
+  Serial.begin(9600);
+}
+void loop() {
+  LED_LIST data;
+  
+  
+ 
+  int64_t wert = is_String_nummer(input());
+ 
+  data = umrechunung(wert);
+
+  //LED= all_led_prozent_in_hex(rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101);
+  //LED= all_led_prozent(rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101);
+  //LED= all_led_prozent(data.led1,data.led2,data.led3,data.led4,0,0,0,0);
+  //LED =all_led_prozent2(data);
+  LED= all_led_prozent_in_hex2(data);
+
+  display_LED(LED);
+ 
+}
+
+int64_t is_String_nummer(String eingabe)
+{
+  eingabe.trim();
+  int64_t wert = strtoll(eingabe.c_str(), nullptr, 10);  // 10 = Dezimalsystem
+  return wert;
+}
+
+
+String input(void)
+{
+    //Nur wenn es ungelesene Daten gibt
+  while(1)
+  {
+  if (Serial.available() > 0)
+  {
+    String eingabe = Serial.readString(); //Die empfangenen Bytes werden in einer Variable gespeichert
+    Serial.println("Eingabe: ");
+    Serial.println(eingabe);
+   
+    return eingabe;
+  }
+  else
+  {
+    return "0";
+  
+  }
+  }
+
+}
+
+struct LED_LIST umrechunung(uint wert)
+{
+    //wert =0xFFFFFFFF;
+  LED_LIST data;
+  data.led1 = wert & 0x000000FF;
+  data.led2 = (wert>>8) & 0x000000FF;
+  data.led3 = (wert>>16) & 0x000000FF;
+  data.led4 = (wert>>24) & 0x000000FF;
+  return data;
+}
+
+
