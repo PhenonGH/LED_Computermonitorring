@@ -24,32 +24,7 @@ struct LED_LIST {   // Structure declaration
 int64_t LED = 0xFFFFFFFFFFFFFFFF;
 
 
-int64_t all_led_prozent(byte LED1, byte LED2, byte LED3 , byte LED4, byte LED5, byte LED6, byte LED7, byte LED8)
-{
-  int64_t LED_ll_led_prozent=0; 
 
-
-   LED1 = prozent(LED1);
-   LED2 = prozent(LED2);
-   LED3 = prozent(LED3);
-   LED4 = prozent(LED4);
-   LED5 = prozent(LED5);
-   LED6 = prozent(LED6);
-   LED7 = prozent(LED7);
-   LED8 = prozent(LED8);
-  
- LED_ll_led_prozent = int64_t(LED1)
-    | (int64_t(LED2) << 8)
-    | (int64_t(LED3) << 16)
-    | (int64_t(LED4) << 24)
-    | (int64_t(LED5) << 32)
-    | (int64_t(LED6) << 40)
-    | (int64_t(LED7) << 48)
-    | (int64_t(LED8) << 56);
-
-
-  return LED_ll_led_prozent; 
-}
 
 
 int64_t  all_led_prozent2(LED_LIST data)
@@ -64,33 +39,6 @@ int64_t  all_led_prozent2(LED_LIST data)
     | (int64_t(prozent(0)) << 40)
     | (int64_t(prozent(0)) << 48)
     | (int64_t(prozent(0)) << 56);
-
-  return LED_ll_led_prozent;
-}
-
-int64_t all_led_prozent_in_hex(byte LED1, byte LED2, byte LED3 , byte LED4, byte LED5, byte LED6, byte LED7, byte LED8)
-{
-  int64_t LED_ll_led_prozent = 0;
-
-  // Werte holen und direkt als Bitmuster verwenden
-  LED1 = prozent_in_hex(LED1); // z. B. 13 → 00001101
-  LED2 = prozent_in_hex(LED2);
-  LED3 = prozent_in_hex(LED3);
-  LED4 = prozent_in_hex(LED4);
-  LED5 = prozent_in_hex(LED5);
-  LED6 = prozent_in_hex(LED6);
-  LED7 = prozent_in_hex(LED7);
-  LED8 = prozent_in_hex(LED8);
-
-  // 8 Bytes in ein 64-Bit-Wort setzen
-  LED_ll_led_prozent = int64_t(LED1)
-    | (int64_t(LED2) << 8)
-    | (int64_t(LED3) << 16)
-    | (int64_t(LED4) << 24)
-    | (int64_t(LED5) << 32)
-    | (int64_t(LED6) << 40)
-    | (int64_t(LED7) << 48)
-    | (int64_t(LED8) << 56);
 
   return LED_ll_led_prozent;
 }
@@ -119,8 +67,6 @@ byte prozent(int value)
   {
     value =100;
   }
-
-  
   temp = float(value)/12.5; 
   num_of_led_prozent= byte(temp);
   if(!(num_of_led_prozent ==0))
@@ -145,14 +91,12 @@ byte prozent_in_hex(int value)
 }
 
 
-
 int64_t change_color(int LED_Num)
-{ //Rot
+{ 
  const int group = LED_Num / 8;
 
   switch (group)
   {
-   
     case 0:
       return 0xFF0000; // Rot
     case 1:
@@ -175,10 +119,7 @@ int64_t change_color(int LED_Num)
      default:
       return 0;
   }
-
-
 return 0;
-
 }
 void display_LED(int64_t display_LEDs)
 {
@@ -195,13 +136,11 @@ void display_LED(int64_t display_LEDs)
 
     strip.show();
     delay(1);
-
   }
   delay(1000);
-  //strip.clear();
+  
 }
 
-//oben LED_martrix ansteuerung
 
 
 void setup() {
@@ -212,16 +151,10 @@ void setup() {
 }
 void loop() {
   LED_LIST data;
-  
-  
- 
+
   int64_t wert = is_String_nummer(input());
- 
   data = umrechunung(wert);
 
-  //LED= all_led_prozent_in_hex(rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101);
-  //LED= all_led_prozent(rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101,rand() % 101);
-  //LED= all_led_prozent(data.led1,data.led2,data.led3,data.led4,0,0,0,0);
   //LED =all_led_prozent2(data);
   LED= all_led_prozent_in_hex2(data);
 
@@ -236,7 +169,6 @@ int64_t is_String_nummer(String eingabe)
   return wert;
 }
 
-
 String input(void)
 {
     //Nur wenn es ungelesene Daten gibt
@@ -247,7 +179,6 @@ String input(void)
     String eingabe = Serial.readString(); //Die empfangenen Bytes werden in einer Variable gespeichert
     Serial.println("Eingabe: ");
     Serial.println(eingabe);
-   
     return eingabe;
   }
   else
