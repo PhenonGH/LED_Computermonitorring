@@ -1,6 +1,6 @@
-# Computer Usage Monitor
+# Computer Usage Monitor (WS2812 LED matrix 8x8)
 
-A **WS2812 LED matrix** project that displays your computer’s current usage in real time.  
+A **WS2812 LED matrix** 8x8 project that displays your computer’s current usage in real time.  
 Controlled by an **RP2040**, which receives data from a **Python script** running on your PC.
 
 ---
