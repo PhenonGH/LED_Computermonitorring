@@ -193,7 +193,6 @@ void loop() {
   LED_LIST data;
 
   int64_t wert = is_String_nummer(input());
-  wert = 0x645036FF;
   data = convert(wert);
 
 
@@ -228,7 +227,7 @@ bool change_mode_by_button()
      } 
      Serial.println("mode: ");
     
-     return mode;
+     return true;
 
 
 }
