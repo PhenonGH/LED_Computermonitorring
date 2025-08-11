@@ -1,6 +1,6 @@
 
 #include <Adafruit_NeoPixel.h>
-#define PIN        26        // GPIO29 auf dem RP2040 Zero
+#define PIN        28       // GPIO29 auf dem RP2040 Zero
 #define NUM_LEDS   64        // 8x8 Matrix
 #define BRIGHTNESS 4        // 1.6 % von 255 ≈ 4 
 Adafruit_NeoPixel strip(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
@@ -9,6 +9,7 @@ Adafruit_NeoPixel strip(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 #define DEBOUNCEDELAY 50 // in ms
 uint64_t LED = 0;
 
+volatile bool buttonPressed = false;
 
 struct LED_LIST {   // Structure declaration
   byte led1;         
@@ -190,6 +191,7 @@ void setup() {
   Serial.begin(9600);
  
   pinMode(BUTTON_PIN, INPUT_PULLUP); // interner Pull-up aktiv
+  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonISR, FALLING);
 }
 void loop() {
   LED_LIST data;
@@ -198,10 +200,10 @@ void loop() {
   int64_t wert = is_String_nummer(input());
   data = convert(wert);
 
-
-  if(button_is_pressed())
+  if(buttonPressed)
   {
      mode = !mode;
+     buttonPressed = false;
   }
 
   if(mode)
@@ -217,34 +219,15 @@ void loop() {
  
 }
 
+void buttonISR() {
+  static unsigned long lastInterruptTime = 0;
+  unsigned long interruptTime = millis();
 
-bool button_is_pressed()
-{
-  bool state = false;
-  static bool lastStableState = HIGH; 
-  static bool lastReading = HIGH;
-  static unsigned long lastDebounceTime = 0;
-
-   bool reading = digitalRead(BUTTON_PIN);
-
-  if (reading != lastReading) {
-    lastDebounceTime = millis(); 
+  // Entprellung im ISR mit minimalem Delay
+  if (interruptTime - lastInterruptTime > 50) {  // 50 ms Entprellzeit
+    buttonPressed = true;
   }
-
-  if ((millis() - lastDebounceTime) > DEBOUNCEDELAY) {
-    if (reading != lastStableState) {
-      lastStableState = reading;
-
-      if (lastStableState == LOW) {
-        
-        Serial.println("Taster is pressed");
-        state = true;
-      }
-    }
-  }
-
-  lastReading = reading;
-  return state;
+  lastInterruptTime = interruptTime;
 }
 
 
