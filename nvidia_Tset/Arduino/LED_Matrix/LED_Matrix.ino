@@ -1,23 +1,24 @@
 
 #include <Adafruit_NeoPixel.h>
-#define PIN        29        // GPIO29 auf dem RP2040 Zero
+#define PIN        26        // GPIO29 auf dem RP2040 Zero
 #define NUM_LEDS   64        // 8x8 Matrix
-#define BRIGHTNESS 4        // 1.6 % von 255 ≈ 4
+#define BRIGHTNESS 4        // 1.6 % von 255 ≈ 4 
 Adafruit_NeoPixel strip(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 #define aktiv 0
-#define BUTTON_PIN 26
+#define BUTTON_PIN 29
+#define DEBOUNCEDELAY 50 // in ms
 uint64_t LED = 0;
 
 
 struct LED_LIST {   // Structure declaration
-  byte led1;           // Member (int variable)
-  byte led2;       // Member (char variable)
-  byte led3;           // Member (int variable)
-  byte led4;       // Member (char variable)
-  byte led5;       // Member (char variable)
-  byte led6;       // Member (char variable)
-  byte led7;       // Member (char variable)
-  byte led8;       // Member (char variable)
+  byte led1;         
+  byte led2;       
+  byte led3;           
+  byte led4;       
+  byte led5;       
+  byte led6;       
+  byte led7;       
+  byte led8;       
 }; // End the structure with a semicolon
 
 
@@ -187,16 +188,23 @@ void setup() {
   strip.setBrightness(BRIGHTNESS); // 0-255, hier 25%
   strip.show(); // Alle LEDs aus
   Serial.begin(9600);
-  pinMode(BUTTON_PIN, INPUT);
+ 
+  pinMode(BUTTON_PIN, INPUT_PULLUP); // interner Pull-up aktiv
 }
 void loop() {
   LED_LIST data;
+  static bool mode = false;
 
   int64_t wert = is_String_nummer(input());
   data = convert(wert);
 
 
-  if(change_mode_by_button())
+  if(button_is_pressed())
+  {
+     mode = !mode;
+  }
+
+  if(mode)
   {
     LED= all_led_prozent_in_hex2(data);
   }
@@ -209,26 +217,36 @@ void loop() {
  
 }
 
-bool change_mode_by_button()
+
+bool button_is_pressed()
 {
-  int buttonState = 0;
-  static bool mode = true; 
-  buttonState = analogRead(BUTTON_PIN);
+  bool state = false;
+  static bool lastStableState = HIGH; 
+  static bool lastReading = HIGH;
+  static unsigned long lastDebounceTime = 0;
 
-    if (buttonState > 512) 
-    {
-      delay(20);
-       if (buttonState > 512) 
-      {
-        mode ^= true;
+   bool reading = digitalRead(BUTTON_PIN);
 
-      }  
+  if (reading != lastReading) {
+    lastDebounceTime = millis(); 
+  }
 
-     } 
-     Serial.println("mode: ");
-    
-     return true;
+  if ((millis() - lastDebounceTime) > DEBOUNCEDELAY) {
+    if (reading != lastStableState) {
+      lastStableState = reading;
 
+      if (lastStableState == LOW) {
+        
+        Serial.println("Taster is pressed");
+        state = true;
+      }
+    }
+  }
 
+  lastReading = reading;
+  return state;
 }
+
+
+
 
