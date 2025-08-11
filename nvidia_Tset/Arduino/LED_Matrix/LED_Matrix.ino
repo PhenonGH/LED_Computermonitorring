@@ -224,7 +224,7 @@ void buttonISR() {
   unsigned long interruptTime = millis();
 
   // Entprellung im ISR mit minimalem Delay
-  if (interruptTime - lastInterruptTime > 50) {  // 50 ms Entprellzeit
+  if (interruptTime - lastInterruptTime > DEBOUNCEDELAY) {  // 50 ms Entprellzeit
     buttonPressed = true;
   }
   lastInterruptTime = interruptTime;
