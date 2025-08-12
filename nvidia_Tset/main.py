@@ -1,3 +1,9 @@
+
+#This program, written by TS on 12.08.2025 (version 1.0), monitors system RAM, CPU,
+#and GPU utilisation, packs the four percentages into a single 32‑bit integer, and transmits the
+#result over a serial link to an RP2040 microcontroller.
+
+
 import psutil
 import pynvml
 import serial
@@ -60,7 +66,7 @@ def get_gpu_vram_usage():
 
 def output(value4,value3,value2,value1): #send to rp2040
     wert = (value4 << 24) + (value3 << 16) + (value2 << 8) + value1
-    #print(f"CPU: {value1}, CPU_RAM: {value2}, GPU: {value3}, GPU_RAM: {value4}, Zusammen: {wert}")  #
+    print(f"CPU: {value1}, CPU_RAM: {value2}, GPU: {value3}, GPU_RAM: {value4}, all_value: {wert}")  #
     return wert
 
 

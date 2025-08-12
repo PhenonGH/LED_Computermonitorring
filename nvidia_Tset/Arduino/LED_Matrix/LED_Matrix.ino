@@ -1,4 +1,8 @@
-
+//This program, written by TS on 12.08.2012 (version 1.0),
+//configures an 8×8 NeoPixel LED matrix on an RP2040, 
+//receives 64‑bit LED‑state values via serial, renders 
+//the matrix with color gradients, and toggles between 
+//two display modes when the button is pressed.
 #include <Adafruit_NeoPixel.h>
 #define PIN        28       // GPIO29 auf dem RP2040 Zero
 #define NUM_LEDS   64        // 8x8 Matrix
@@ -11,7 +15,7 @@ uint64_t LED = 0;
 
 volatile bool buttonPressed = false;
 
-struct LED_LIST {   // Structure declaration
+struct LED_LIST {   
   byte led1;         
   byte led2;       
   byte led3;           
@@ -20,10 +24,46 @@ struct LED_LIST {   // Structure declaration
   byte led6;       
   byte led7;       
   byte led8;       
-}; // End the structure with a semicolon
+}; 
 
 
+//main
+void setup() {
+  strip.begin();
+  strip.setBrightness(BRIGHTNESS); // 0-255, hier 25%
+  strip.show(); // Alle LEDs aus
+  Serial.begin(9600);
+ 
+  pinMode(BUTTON_PIN, INPUT_PULLUP); // interner Pull-up aktiv
+  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonISR, FALLING);
+}
+void loop() {
+  LED_LIST data;
+  static bool mode = false;
 
+  int64_t wert = is_String_nummer(input());
+  data = convert(wert);
+
+  if(buttonPressed)
+  {
+     mode = !mode;
+     buttonPressed = false;
+  }
+
+  if(mode)
+  {
+    LED= all_led_prozent_in_hex2(data);
+  }
+  else
+  {
+    LED =all_led_prozent2(data);
+  }
+
+  display_LED(LED);
+ 
+}
+//----------------------------------------
+//display
 int64_t  all_led_prozent2(LED_LIST data)
 {
    int64_t all_led_in_one_value = 0;
@@ -139,8 +179,9 @@ void display_LED(int64_t display_LEDs)
   
 }
 
+//------------------------
 
-
+//input
 uint64_t is_String_nummer(String eingabe)
 {
   eingabe.trim();
@@ -150,15 +191,15 @@ uint64_t is_String_nummer(String eingabe)
 
 String input(void)
 {
-    //Nur wenn es ungelesene Daten gibt
+  
   while(1)
   {
   if (Serial.available() > 0)
   {
-    String eingabe = Serial.readString(); //Die empfangenen Bytes werden in einer Variable gespeichert
+    String inputline = Serial.readString(); 
     Serial.println("Eingabe: ");
-    Serial.println(eingabe);
-    return eingabe;
+    Serial.println(inputline);
+    return inputline;
   }
   else
   {
@@ -183,41 +224,9 @@ struct LED_LIST convert(uint64_t wert)
   data.led8 = (wert>>56) & 0x000000FF;
   return data;
 }
+//--------------------
 
-void setup() {
-  strip.begin();
-  strip.setBrightness(BRIGHTNESS); // 0-255, hier 25%
-  strip.show(); // Alle LEDs aus
-  Serial.begin(9600);
- 
-  pinMode(BUTTON_PIN, INPUT_PULLUP); // interner Pull-up aktiv
-  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonISR, FALLING);
-}
-void loop() {
-  LED_LIST data;
-  static bool mode = false;
-
-  int64_t wert = is_String_nummer(input());
-  data = convert(wert);
-
-  if(buttonPressed)
-  {
-     mode = !mode;
-     buttonPressed = false;
-  }
-
-  if(mode)
-  {
-    LED= all_led_prozent_in_hex2(data);
-  }
-  else
-  {
-    LED =all_led_prozent2(data);
-  }
-
-  display_LED(LED);
- 
-}
+//button ISR
 
 void buttonISR() {
   static unsigned long lastInterruptTime = 0;
