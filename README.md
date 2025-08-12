@@ -25,3 +25,5 @@ Controlled by an **RP2040**, which receives data from a **Python script** runnin
 - PC communicates with the RP2040 or other µC via **serial connection**.
 
 ---
+
+![Display in Hex mode](image/Display_hex.jpg)
