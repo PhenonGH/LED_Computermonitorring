@@ -19,6 +19,22 @@ Controlled by an **RP2040**, which receives data from a **Python script** runnin
 
 ---
 
+## Finished Prototype
+
+---
+
+<p align="center">
+  <img src="images/display_hex.jpg" width="250">
+  <img src="images/display_prozent.jpg" width="250">
+</p>
+
+The **left display** shows system status (CPU usage, RAM, GPU, and GPU VRAM) in **hexadecimal format**.  
+The **right display** shows the same data in **percentage format**, where each LED represents **12.5%** usage.  
+
+The display mode can be switched using a **dedicated push button**.
+
+---
+
 ## Limitations
 
 - The Python script **only works** with **NVIDIA GPUs** (requires NVIDIA-SMI).
@@ -26,4 +42,6 @@ Controlled by an **RP2040**, which receives data from a **Python script** runnin
 
 ---
 
-![Display in Hex mode](image/Display_hex.jpg)
+
+
+
