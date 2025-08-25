@@ -88,7 +88,12 @@ def main(arduino):
 
 
 if __name__ == "__main__":
-    arduino = init()
-    main(arduino)
+    while(1):
+        try:
+            arduino = init()
+            main(arduino)
+        except:
+            print("Error")
+            time.sleep(10)
 
 
