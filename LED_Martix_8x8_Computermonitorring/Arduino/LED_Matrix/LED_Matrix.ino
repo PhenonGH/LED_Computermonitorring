@@ -4,7 +4,9 @@
 //the matrix with color gradients, and toggles between 
 //two display modes when the button is pressed.
 #include <Adafruit_NeoPixel.h>
-#define PIN        28       // GPIO29 auf dem RP2040 Zero
+#include <EEPROM.h>
+
+#define PIN        28       // GPIO28
 #define NUM_LEDS   64        // 8x8 Matrix
 #define BRIGHTNESS 4        // 1.6 % von 255 ≈ 4 
 Adafruit_NeoPixel strip(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
@@ -30,24 +32,29 @@ struct LED_LIST {
 //main
 void setup() {
   strip.begin();
-  strip.setBrightness(BRIGHTNESS); // 0-255, hier 25%
-  strip.show(); // Alle LEDs aus
+  strip.setBrightness(BRIGHTNESS);
+  strip.show(); // All LEDs off
   Serial.begin(9600);
+  EEPROM.begin(4);
  
-  pinMode(BUTTON_PIN, INPUT_PULLUP); // interner Pull-up aktiv
+  pinMode(BUTTON_PIN, INPUT_PULLUP); // intern Pull-up aktiv
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonISR, FALLING);
 }
 void loop() {
   LED_LIST data;
-  static bool mode = false;
-
+ 
+  bool mode = false;
+  const int addr = 0;
+  mode = EEPROM.read(addr);   
+  
   int64_t wert = is_String_nummer(input());
   data = convert(wert);
-
   if(buttonPressed)
   {
      mode = !mode;
      buttonPressed = false;
+     EEPROM.write(addr, (byte)mode); 
+     EEPROM.commit();
   }
 
   if(mode)
@@ -185,7 +192,7 @@ void display_LED(int64_t display_LEDs)
 uint64_t is_String_nummer(String eingabe)
 {
   eingabe.trim();
-  uint64_t wert = strtoll(eingabe.c_str(), nullptr, 10);  // 10 = Dezimalsystem
+  uint64_t wert = strtoll(eingabe.c_str(), nullptr, 10);  
   return wert;
 }
 
@@ -197,7 +204,7 @@ String input(void)
   if (Serial.available() > 0)
   {
     String inputline = Serial.readString(); 
-    Serial.println("Eingabe: ");
+    Serial.println("Input: ");
     Serial.println(inputline);
     return inputline;
   }
@@ -232,8 +239,8 @@ void buttonISR() {
   static unsigned long lastInterruptTime = 0;
   unsigned long interruptTime = millis();
 
-  // Entprellung im ISR mit minimalem Delay
-  if (interruptTime - lastInterruptTime > DEBOUNCEDELAY) {  // 50 ms Entprellzeit
+  // Debounce with ISR
+  if (interruptTime - lastInterruptTime > DEBOUNCEDELAY) {  // 50 ms Debounce
     buttonPressed = true;
   }
   lastInterruptTime = interruptTime;
