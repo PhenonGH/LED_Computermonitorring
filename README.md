@@ -42,6 +42,19 @@ The display mode can be switched using a **dedicated push button**.
 
 ---
 
+---
+
+## Finished project:
+A case for the LED matrix was created using a 3D printer. Afterwards, this case was attached to the side of the monitor.
+
+<p align="center">
+  <img src="images/display_with_case.jpg" width="250">
+</p>
+
+---
+
+
+
 
 
 
