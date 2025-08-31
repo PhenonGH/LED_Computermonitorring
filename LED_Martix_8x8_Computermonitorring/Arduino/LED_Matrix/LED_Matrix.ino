@@ -63,8 +63,10 @@ void loop() {
   }
   else
   {
-    LED =all_led_prozent2(data);
+    //LED =all_led_prozent2(data);
+    LED =all_led_prozent_time_is_hex(data);
   }
+  
 
   display_LED(LED);
  
@@ -96,6 +98,22 @@ int64_t  all_led_prozent_in_hex2(LED_LIST data)
     | (int64_t(prozent_in_hex(data.led4)) << 24)
     | (int64_t(prozent_in_hex(data.led5)) << 32)
     | (int64_t(prozent_in_hex(data.led6)) << 40)
+    | (int64_t(prozent_in_hex(data.led7)) << 48)
+    | (int64_t(prozent_in_hex(data.led8)) << 56);
+
+  return all_led_in_one_value;
+}
+
+int64_t  all_led_prozent_time_is_hex(LED_LIST data)
+{
+   int64_t all_led_in_one_value = 0;
+
+   all_led_in_one_value = int64_t(prozent(data.led1))
+    | (int64_t(prozent(data.led2)) << 8)
+    | (int64_t(prozent(data.led3)) << 16)
+    | (int64_t(prozent(data.led4)) << 24)
+    | (int64_t(prozent(data.led5)) << 32)
+    | (int64_t(prozent(data.led6)) << 40)
     | (int64_t(prozent_in_hex(data.led7)) << 48)
     | (int64_t(prozent_in_hex(data.led8)) << 56);
 

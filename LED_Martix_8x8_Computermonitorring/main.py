@@ -8,9 +8,12 @@ import psutil
 import pynvml
 import serial
 import time
+import numpy as np
 import serial.tools.list_ports
 from pynvml import nvmlDeviceGetMemoryInfo
 #Search all connected serial ports and return the device path of the RP2040.
+
+led_line = bytearray(12)
 def find_rp2040_port():
     ports = serial.tools.list_ports.comports()
     for port in ports:
@@ -64,36 +67,55 @@ def get_gpu_vram_usage():
 #    - value2:  bits 8‑15   (RAM %)
 #    - value1:  bits 0‑7    (CPU %)
 
-def output(value4,value3,value2,value1): #send to rp2040
-    wert = (value4 << 24) + (value3 << 16) + (value2 << 8) + value1
-    print(f"CPU: {value1}, CPU_RAM: {value2}, GPU: {value3}, GPU_RAM: {value4}, all_value: {wert}")  #
+
+
+def output(led_line): #send to rp2040
+
+    wert =0
+    for i in range(8):
+        wert += (led_line[i]<<(8*i))
+
+    print(f"CPU: {led_line[0]}, CPU_RAM: {led_line[1]}, GPU: {led_line[2]}, GPU_RAM: {led_line[3]}, all_value: {led_line[4]}")  #
     return wert
+
+def get_time_hour():
+
+    return time.localtime().tm_hour
+
+def get_time_minute():
+
+    return time.localtime().tm_min
 
 
 #   Main loop: read system stats, pack them, and send to the RP2040.
 def main(arduino):
     while True:
 
-        vram_gpu= int(get_gpu_vram_usage())
-        gpu_useage= int(get_gpu_usage())
-        ram_cpu= int(psutil.virtual_memory().percent)
-        cpu_useage= int(psutil.cpu_percent())
 
-        wert= output(vram_gpu, gpu_useage, ram_cpu, cpu_useage)
+
+        led_line[0] = int(psutil.cpu_percent())
+        led_line[1] = int(psutil.virtual_memory().percent)
+        led_line[2] = int(get_gpu_usage())
+        led_line[3] = int(get_gpu_vram_usage())
+        led_line[4] = 0 # not used
+        led_line[5] = 0 # not used
+        led_line[6] = int(time.localtime().tm_hour)
+        led_line[7] = int(time.localtime().tm_min)
+
+        wert = output(led_line)
         all_values = [wert]
         for i in range(len(all_values)):
             time.sleep(0.1)
         time.sleep(1)
         arduino.write(f"{wert}\n".encode()) #send all data
+        print("len:")
+        print(len(all_values))
+        print(wert)
 
 
 if __name__ == "__main__":
-    while(1):
-        try:
-            arduino = init()
-            main(arduino)
-        except:
-            print("Error")
-            time.sleep(10)
+        arduino = init()
+        main(arduino)
+
 
 
